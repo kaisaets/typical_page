@@ -1,24 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import { Fragment, useEffect, useState } from "react";
+import MainHeader from "./components/MainHeader/MainHeader";
+import Login from "./components/Login/Login";
+import Home from "./components/Home/Home";
 
 function App() {
+  const[loggedIn, setLoggedIn]  = useState(() =>{
+    if(JSON.parse(localStorage.getItem('isLoggedUser')) !== null){
+      return JSON.parse(localStorage.getItem ('isLoggedUser')).isLogged
+    } else{
+      return false
+    } 
+  } )
+
+  console.log(loggedIn)
+
+  useEffect(() =>{
+    const storedLoggedUseData = JSON.parse(localStorage.getItem('isLoggedUser'))
+    if(storedLoggedUseData !== null){
+      if(storedLoggedUseData.isLogged === true){
+        setLoggedIn(true)
+      }
+    }
+  }, [])
+
+  const loginHandler = (user, password) =>{
+    const loggedUser = localStorage.setItem('isLoggedUser', JSON.stringify({
+      username: user,
+      isLogged: true
+    }))
+    setLoggedIn(true)
+  } 
+
+  const logoutHandler = () =>{
+    localStorage.removeItem('isLoggedUser')
+    setLoggedIn(false)
+  } 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      <MainHeader isAuthenticated ={loggedIn}  />
+      <main>
+        {!loggedIn && <Login onLogin={loginHandler}/>} 
+        {loggedIn && <Home />} 
+      </main>
+    </Fragment>
   );
 }
 
